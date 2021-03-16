@@ -241,16 +241,3 @@ $_$.prototype.Empty = function() {
     });
     return this;
 }
-$_$.prototype.attr = function(method, attrvals) {
-    if (method && $_$().Bool(attrvals) && typeof method === "string" && typeof attrvals === "object") {
-        if (method === "set" && !(Array.isArray(attrvals))) {}
-        if (method === "get" && Array.isArray(attrvals)) {}
-        if (method === "addbegin" && !(Array.isArray(attrvals))) {}
-        if (method === "addend" && !(Array.isArray(attrvals))) {}
-        if (method === "removefirst" && !(Array.isArray(attrvals))) {}
-        if (method === "removelast" && !(Array.isArray(attrvals))) {}
-        if (method === "removeall" && !(Array.isArray(attrvals))) {}
-        if (method === "contains" && !(Array.isArray(attrvals))) {}
-    }
-    return this;
-}

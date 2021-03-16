@@ -5,16 +5,18 @@ const $_$ = function(sel) {
     if (sel) {
         if (typeof sel === "string") {
             this.elems = Object.values(document.querySelectorAll(sel));
-            return this;
         } else if (typeof sel === "object" && Object.values(sel).length && !(Array.isArray(sel))) {
             this.elems = Object.values(sel);
-            return this;
+        } else {
+            this.elems = sel;
         }
-        this.elems = sel;
-        return this;
+    } else {
+        this.elems = [];
     }
-    this.elems = [];
     return this;
+}
+$_$.prototype.$ = function() {
+    return this.elems;
 }
 $_$.prototype.Loop = function(func) {
     if (this.elems && typeof this.elems === "number" && typeof func === "function") {
@@ -175,7 +177,7 @@ $_$.prototype.InsertElement = function(place, els) {
     }
     return this;
 }
-$_$.prototype.InsertHTML = function(place, htmls) {
+$_$.prototype.InsertHtml = function(place, htmls) {
     if (place && htmls && typeof place === "string" && typeof htmls === "string") {
         $_$(this.elems).ForEach((elem) => {
             elem.insertAdjacentHTML(place, htmls);
@@ -239,5 +241,126 @@ $_$.prototype.Empty = function() {
             elem.removeChild(elem.firstChild);
         }
     });
+    return this;
+}
+$_$.prototype.attr = function(method, attrvals) {
+    if (method && $_$().Bool(attrvals) && typeof method === "string" && typeof attrvals === "object") {
+        if (method === "set" && !(Array.isArray(attrvals))) {
+            $_$(this.elems).ForEach((elem) => {
+                for (attrval in attrvals) {
+                    elem.setAttribute(attrval, attrvals[attrval]);
+                }
+            });
+        }
+        if (method === "get" && Array.isArray(attrvals)) {
+            const vals = [];
+            $_$(this.elems).ForEach((elem) => {
+                vals[vals.length] = [];
+                $_$(attrvals).ForEach((attrval) => {
+                    if (elem.attributes[attrval]) {
+                        vals[vals.length - 1][vals[vals.length - 1].length] = elem.attributes[attrval].value;
+                    } else {
+                        vals[vals.length - 1][vals[vals.length - 1].length] = "";
+                    }
+                });
+            });
+            return vals;
+        }
+        if (method === "addbegin" && !(Array.isArray(attrvals))) {
+            $_$(this.elems).ForEach((elem) => {
+                for (attrval in attrvals) {
+                    if (elem.attributes[attrval]) {
+                        elem.attributes[attrval].value = attrvals[attrval] + elem.attributes[attrval].value;
+                    } else {
+                        elem.setAttribute(attrval, attrvals[attrval]);
+                    }
+                }
+            });
+        }
+        if (method === "addend" && !(Array.isArray(attrvals))) {
+            $_$(this.elems).ForEach((elem) => {
+                for (attrval in attrvals) {
+                    if (elem.attributes[attrval]) {
+                        elem.attributes[attrval].value += attrvals[attrval];
+                    } else {
+                        elem.setAttribute(attrval, attrvals[attrval]);
+                    }
+                }
+            });
+        }
+        if (method === "removefirst" && !(Array.isArray(attrvals))) {
+            $_$(this.elems).ForEach((elem) => {
+                for (attrval in attrvals) {
+                    if (elem.attributes[attrval]) {
+                        elem.attributes[attrval].value = elem.attributes[attrval].value.slice(0, elem.attributes[attrval].value.indexOf(attrvals[attrval])) + elem.attributes[attrval].value.slice(elem.attributes[attrval].value.indexOf(attrvals[attrval]) + attrvals[attrval].length, elem.attributes[attrval].value.length);
+                    }
+                }
+            });
+        }
+        if (method === "removelast" && !(Array.isArray(attrvals))) {
+            $_$(this.elems).ForEach((elem) => {
+                for (attrval in attrvals) {
+                    if (elem.attributes[attrval]) {
+                        elem.attributes[attrval].value = elem.attributes[attrval].value.slice(0, elem.attributes[attrval].value.lastIndexOf(attrvals[attrval])) + elem.attributes[attrval].value.slice(elem.attributes[attrval].value.lastIndexOf(attrvals[attrval]) + attrvals[attrval].length, elem.attributes[attrval].value.length);
+                    }
+                }
+            });
+        }
+        if (method === "removeall" && !(Array.isArray(attrvals))) {
+            $_$(this.elems).ForEach((elem) => {
+                for (attrval in attrvals) {
+                    if (elem.attributes[attrval]) {
+                        elem.attributes[attrval].value = elem.attributes[attrval].value.replace(new RegExp(attrvals[attrval], "g"), "");
+                    }
+                }
+            });
+        }
+        if (method === "contains" && !(Array.isArray(attrvals))) {
+            var include = true;
+            $_$(this.elems).ForEach((elem) => {
+                for (attrval in attrvals) {
+                    if (elem.attributes[attrval]) {
+                        if (!(elem.attributes[attrval].value.includes(attrvals[attrval]))) {
+                            include = false;
+                        }
+                    } else {
+                        include = false;
+                    }
+                }
+            });
+            return include;
+        }
+    }
+    return this;
+}
+$_$.prototype.Html = function(method, inout = true) {
+    if ($_$().Bool(this.elems) && typeof method === "string") {
+        if (method === "inner") {
+            if (typeof inout === "string") {
+                $_$(this.elems).ForEach((elem) => {
+                    elem.innerHTML = inout;
+                });
+            } else {
+                const inners = [];
+                $_$(this.elems).ForEach((elem) => {
+                    inners[inners.length] = elem.innerHTML;
+                });
+                return inners;
+            }
+        }
+        if (method === "outer") {
+            if (typeof inout === "string") {
+                $_$(this.elems).ForEach((elem) => {
+                    elem.outerHTML = inout;
+                });
+            } else {
+                const outers = [];
+                $_$(this.elems).ForEach((elem) => {
+                    outers[outers.length] = elem.outerHTML;
+                });
+                return outers;
+            }
+        }
+    }
     return this;
 }

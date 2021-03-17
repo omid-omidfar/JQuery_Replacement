@@ -73,7 +73,7 @@ $_$.prototype.Bool = function(bools) {
     return false;
 }
 $_$.prototype.CSS = function(method, styles) {
-    if ($_$().Bool(this.elems) && method && $_$().Bool(styles) && typeof method === "string" && typeof styles === "object") {
+    if (method && $_$().Bool(styles) && typeof method === "string" && typeof styles === "object") {
         if (method === "set" && !(Array.isArray(styles))) {
             $_$(this.elems).ForEach((elem) => {
                 for (propval in styles) {
@@ -91,14 +91,7 @@ $_$.prototype.CSS = function(method, styles) {
             });
             return vals;
         }
-        if (method === "addbegin" && !(Array.isArray(styles))) {
-            $_$(this.elems).ForEach((elem) => {
-                for (propval in styles) {
-                    elem.style[propval] = styles[propval] + elem.style[propval];
-                }
-            });
-        }
-        if (method === "addend" && !(Array.isArray(styles))) {
+        if (method === "add" && !(Array.isArray(styles))) {
             $_$(this.elems).ForEach((elem) => {
                 for (propval in styles) {
                     elem.style[propval] += styles[propval];
@@ -143,7 +136,7 @@ $_$.prototype.CSS = function(method, styles) {
 $_$.prototype.Fade = function(opac = 1, speed = 400) {
     if (typeof speed === "number" && typeof opac === "number") {
         $_$(this.elems).CSS("set", { "opacity": opac });
-        $_$(this.elems).CSS("addend", { "transition": " opacity " + speed + "ms" });
+        $_$(this.elems).CSS("add", { "transition": " opacity " + speed + "ms" });
     }
     return this;
 }
@@ -154,16 +147,6 @@ $_$.prototype.HideShow = function(display = "") {
         } else {
             $_$(this.elems).CSS("set", { "display": "none" });
         }
-    }
-    return this;
-}
-$_$.prototype.AddClass = function(classes) {
-    if (classes && typeof classes === "string") {
-        $_$(this.elems).ForEach((elem) => {
-            $_$(classes.split(" ")).ForEach((listclass) => {
-                elem.classList.add(listclass);
-            });
-        });
     }
     return this;
 }
@@ -223,15 +206,15 @@ $_$.prototype.Clone = function(deeps = false) {
 }
 $_$.prototype.Contains = function(childs) {
     if ($_$().Bool(this.elems) && $_$().Bool($_$(childs).elems)) {
-        var istrue = true;
+        var include = true;
         $_$(this.elems).ForEach((elem) => {
             $_$(childs).ForEach((child) => {
                 if (!(elem.contains(child))) {
-                    isfalse = false;
+                    include = false;
                 }
             });
         });
-        return istrue;
+        return include;
     }
     return false;
 }
@@ -266,18 +249,7 @@ $_$.prototype.attr = function(method, attrvals) {
             });
             return vals;
         }
-        if (method === "addbegin" && !(Array.isArray(attrvals))) {
-            $_$(this.elems).ForEach((elem) => {
-                for (attrval in attrvals) {
-                    if (elem.attributes[attrval]) {
-                        elem.attributes[attrval].value = attrvals[attrval] + elem.attributes[attrval].value;
-                    } else {
-                        elem.setAttribute(attrval, attrvals[attrval]);
-                    }
-                }
-            });
-        }
-        if (method === "addend" && !(Array.isArray(attrvals))) {
+        if (method === "add" && !(Array.isArray(attrvals))) {
             $_$(this.elems).ForEach((elem) => {
                 for (attrval in attrvals) {
                     if (elem.attributes[attrval]) {
@@ -334,7 +306,7 @@ $_$.prototype.attr = function(method, attrvals) {
     return this;
 }
 $_$.prototype.Html = function(method, inout = true) {
-    if ($_$().Bool(this.elems) && typeof method === "string") {
+    if (typeof method === "string") {
         if (method === "inner") {
             if (typeof inout === "string") {
                 $_$(this.elems).ForEach((elem) => {
@@ -361,6 +333,69 @@ $_$.prototype.Html = function(method, inout = true) {
                 return outers;
             }
         }
+    }
+    return this;
+}
+$_$.prototype.Text = function(texts = true) {
+    if (typeof texts === "string") {
+        $_$(this.elems).ForEach((elem) => {
+            elem.textContent = texts;
+        });
+    } else {
+        const textlist = [];
+        $_$(this.elems).ForEach((elem) => {
+            textlist[textlist.length] = elem.textContent;
+        });
+        return textlist;
+    }
+    return this;
+}
+$_$.prototype.Class = function(method, classes = "") {
+    if ($_$().Bool(this.elems) && method && typeof method === "string") {
+        if (classes && typeof classes === "string") {
+            if (method === "set") {
+                $_$(this.elems).ForEach((elem) => {
+                    $_$(classes.split(" ")).ForEach((listclass) => {
+                        elem.className = listclass;
+                    });
+                });
+            }
+            if (method === "add") {
+                $_$(this.elems).ForEach((elem) => {
+                    $_$(classes.split(" ")).ForEach((listclass) => {
+                        elem.classList.add(listclass);
+                    });
+                });
+            }
+            if (method === "remove") {
+                $_$(this.elems).ForEach((elem) => {
+                    $_$(classes.split(" ")).ForEach((listclass) => {
+                        if (listclass) {
+                            elem.classList.remove(listclass);
+                        }
+                    });
+                });
+            }
+        } else if (method === "get") {
+            const classeslist = [];
+            $_$(this.elems).ForEach((elem) => {
+                classeslist[classeslist.length] = elem.className;
+            });
+        }
+        if (method === "contains") {
+            var include = true;
+            $_$(this.elems).ForEach((elem) => {
+                $_$(classes.split(" ")).ForEach((listclass) => {
+                    if (!(elem.classList.contains(listclass))) {
+                        include = false;
+                    }
+                });
+            });
+            return include;
+        }
+    }
+    if (method === "contains") {
+        return false;
     }
     return this;
 }
